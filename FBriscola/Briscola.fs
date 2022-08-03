@@ -1,41 +1,27 @@
-﻿//Questo codice è stato creato da Giulio Sorrentino basandosi
+//Questo codice è stato creato da Giulio Sorrentino basandosi
 //sul suo progetto della briscola a console mai pubblicato ed
 //è quindi disponibile sotto licenza GPL
     module Briscola
-    type public ElaboratoreCarte = { mutable NumeroCarte: uint16; mutable Doppione: bool array; mutable CartaBriscola: uint16; mutable inizio: bool; mutable BriscolaDapunti: bool}
-    let inline getNumeroCarte(e: ElaboratoreCarte): uint16 = e.NumeroCarte
-    let inline getCartaBriscola(e: ElaboratoreCarte): uint16 = e.CartaBriscola
-    let inline getBriscolaDaPunti(e: ElaboratoreCarte): bool = e.BriscolaDapunti
-    let public getCartaInt(elaboratoreCarte: ElaboratoreCarte) uint16 =
+    let getCartaInt(numeroCarte: uint16; doppione: bool array; cartaBriscola: uint16; inizio: bool; briscolaDapunti: bool): uint16 =
         let mutable random = System.Random();       
         let mutable fine: uint16= (uint16) (random.Next(0,40))
-        let mutable carta: uint16=(fine+1us)%elaboratoreCarte.NumeroCarte
+        let mutable carta: uint16=(fine+1us)%numeroCarte
         let mutable valore: uint16= 1us
-        while elaboratoreCarte.Doppione[(int) (carta)] && not ( carta=fine ) do
-            carta <- (carta+1us) % elaboratoreCarte.NumeroCarte
-            if elaboratoreCarte.Doppione[(int) (carta)] then
-             carta <-elaboratoreCarte.NumeroCarte+1us
-            elif elaboratoreCarte.inizio then 
+        while doppione[(int) (carta)] && not ( carta=fine ) do
+            carta <- (carta+1us) % numeroCarte
+            if doppione[(int) (carta)] then
+             carta <-numeroCarte+1us
+            elif inizio then 
                 valore <- carta%10us
-                if not( elaboratoreCarte.BriscolaDapunti ) && ( valore=0us || valore=2us || valore>6us) then
+                if not( briscolaDapunti ) && ( valore=0us || valore=2us || valore>6us) then
                     carta <- carta+1us
-                elaboratoreCarte.CartaBriscola <- carta
-                elaboratoreCarte.inizio <- false
+                cartaBriscola <- carta
+                inizio <- false
             else
-                elaboratoreCarte.Doppione[(int) carta] <- true
-        carta
+                doppione[(int) carta] <- true
 
-    type public Carta = {mutable Seme: uint16; mutable Valore: uint16; mutable Punteggio: uint16; mutable SemeStr: string }
-
-    let inline getSeme(carta: Carta) uint16 = carta.Seme
-    let inline getValore(carta: Carta) uint16 = carta.Valore
-    let inline getPunteggio(carta: Carta) uint16 = carta.Punteggio
-    let inline getSemeStr(carta: Carta) string = carta.SemeStr
-    let inline stessoSeme(c: Carta, c1: Carta) bool = c.Seme = c1.Seme
-    let inline getSeme(c: uint16): uint16 = c/10us
-    let inline getValore(c: uint16): uint16 = c%10us
     let getPunteggio(c: uint16) uint16 =
-        let valore: uint16=getValore c
+        let valore: uint16=c%10us
         if valore=0us then
             11us
         elif valore=2us then
@@ -49,7 +35,7 @@
         else
             0us
     let getSemeStr(c: uint16) string =
-        let seme: uint16 = getSeme(c)
+        let seme: uint16 =c/10us
         if seme=0us then
             "Bastoni"
         elif seme=1us then
@@ -59,21 +45,18 @@
         else
             "Spade"
 
-    type public Mazzo = {mutable carte: Carta array; numeroCarte: uint16; elaboratoreCarte: ElaboratoreCarte}
-    let inline getNumeroCarte(m: Mazzo) int = m.carte.Length
-    let inline getCarta(m: Mazzo, quale: uint16) Carta = m.carte[(int) (quale)]
-    let mischiaMazzo(m: Mazzo) = 
+    let mischiaMazzo(carte: uint16 array; numeroCarte: uint16; NumeroCarte: uint16; Doppione: bool array; CartaBriscola: uint16; inizio: bool; BriscolaDapunti: bool) = 
         let mutable i: uint16=1us
         let mutable carta: uint16=0us
         let mutable seme: string=""
         let mutable punteggio: uint16=0us
-        if m.carte=Array.empty then
-            m.carte <- Array.zeroCreate 40
-            carta <- getCartaInt(m.elaboratoreCarte)
-            punteggio <- getPunteggio(carta)
-            seme <- getSemeStr(carta)
-            m.carte[0] <- {Seme=getSeme(carta); Valore=getValore(carta); Punteggio = punteggio ; SemeStr=seme}
-            while not (carta=getCartaBriscola(m.elaboratoreCarte)) do
+        if carte=Array.empty then
+            carte <- Array.zeroCreate 40
+            carta <- getCartaInt(NumeroCarte: uint16; Doppione: bool array; CartaBriscola: uint16; inizio: bool; BriscolaDapunti: bool)
+            punteggio <- carta%10us
+            seme <- carta/10us
+            m.carte[0] <- {carta/10us; Valore=carta%10us; Punteggio = punteggio ; SemeStr=seme}
+            while not (carta=CartaBriscola) do
                 m.carte[(int) (i)] <- {Seme=getSeme(carta); Valore=getValore(carta); Punteggio = punteggio ; SemeStr=seme}
                 
             
